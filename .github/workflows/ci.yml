@@ -1,0 +1,84 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: pytest (py${{ matrix.python }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.10", "3.11", "3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install test deps only
+        run: python -m pip install --upgrade pip pytest
+      - name: Run unit tests
+        run: python -m pytest tests -q
+
+  manifest:
+    name: manifest + no-dependency check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Manifest parses and matches the declared surface
+        run: |
+          python - <<'PY'
+          import pathlib, re, sys
+
+          root = pathlib.Path(".")
+          text = (root / "plugin.yaml").read_text(encoding="utf-8")
+          try:
+              import yaml
+          except ModuleNotFoundError:
+              sys.exit("pyyaml missing on the runner image")
+          m = yaml.safe_load(text)
+
+          problems = []
+          if m.get("manifest_version") != 2:
+              problems.append("manifest_version must be 2")
+          if m.get("api_version") != 1:
+              problems.append("api_version must be 1")
+          if m.get("name") != "skill-hint":
+              problems.append("name must be skill-hint")
+          if m.get("hooks") != ["pre_llm_call"]:
+              problems.append("hooks must be exactly [pre_llm_call]")
+          if set(m.get("provides_tools") or ()):
+              problems.append("plugin must not register tools")
+          if set(m.get("requires_env") or ()):
+              problems.append("plugin must not require env vars")
+
+          # every registered hook must appear in the source
+          src = (root / "__init__.py").read_text(encoding="utf-8")
+          for hook in m.get("hooks") or ():
+              if hook not in src:
+                  problems.append(f"hook {hook} declared but not referenced in __init__.py")
+
+          # standard library only: no third-party import may appear
+          stdlib_ok = set(sys.stdlib_module_names)
+          for path in list(root.glob("*.py")) + list(root.glob("scripts/*.py")):
+              for match in re.finditer(r"^\s*(?:import|from)\s+([a-zA-Z_][\w.]*)", path.read_text(encoding="utf-8"), re.M):
+                  top = match.group(1).split(".")[0]
+                  if top in stdlib_ok or top in {"skill_matcher"} or top == path.stem:
+                      continue
+                  problems.append(f"{path}: non-stdlib import {top!r}")
+
+          if problems:
+              print("FAIL"); [print(" -", p) for p in problems]; sys.exit(1)
+          print("manifest ok: standard library only, hooks match, no tools, no required env")
+          PY
