@@ -1,0 +1,23 @@
+# Aliases beat any lexical match: when one of these keys appears in the user's
+# message, the mapped skill is injected first, unconditionally.
+#
+# Copy to $HERMES_HOME/skill-hint-aliases.yaml (usually ~/.hermes/skill-hint-aliases.yaml)
+# and keep only the lines you care about. Aliases pointing at skills that do not
+# exist are ignored, so this file is safe to edit while the gateway is running.
+#
+# Three shapes are accepted — pick whichever reads better:
+
+# 1) alias: skill-name
+slides: ppt-master
+deck: ppt-master
+流程图: processon-diagram-generator
+
+# 2) skill-name: [alias, alias]
+xlsx: [表格, spreadsheet]
+docx: [word, 文档]
+
+# 3) skill-name: and an indented list (the 0.x format)
+google-workspace:
+  - 日历
+  - 日程
+  - 邮箱

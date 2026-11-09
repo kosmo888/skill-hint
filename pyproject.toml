@@ -1,0 +1,28 @@
+[project]
+name = "hermes-skill-hint"
+version = "1.0.0"
+description = "Local-first, zero-dependency skill discovery for Hermes Agent: BM25 over your skill library, injected only on a confident match."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Wendong Li" }]
+keywords = ["hermes", "hermes-agent", "plugin", "skills", "bm25", "local-first"]
+classifiers = [
+  "Environment :: Plugins",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Topic :: Text Processing :: Indexing",
+]
+dependencies = []
+
+[project.optional-dependencies]
+test = ["pytest>=8"]
+
+[project.urls]
+Homepage = "https://github.com/kosmo888/skill-hint"
+Source = "https://github.com/kosmo888/skill-hint"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+filterwarnings = ["error"]

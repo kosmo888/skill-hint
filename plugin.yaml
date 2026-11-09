@@ -1,0 +1,75 @@
+name: skill-hint
+version: "1.0.0"
+manifest_version: 2
+api_version: 1
+kind: standalone
+description: >-
+  Local-first skill discovery. On each user turn it runs a BM25 query over your installed
+  skills and, only on a confident match, adds a couple of lines naming the skills worth
+  loading. Catches colloquial phrasing, shorthand and non-English wording that a system-prompt
+  index written in formal English misses. No network calls, no model calls, no API key, no
+  third-party dependency: the matcher is standard-library Python and adds no tokens beyond the
+  few lines it injects. Disclosure — the plugin reads SKILL.md files under your Hermes skills
+  roots (including symlinked skill directories) and keeps the index in memory; it writes
+  nothing to disk and sends nothing anywhere. Skill descriptions do reach the model once a
+  hint is injected, exactly as they would if the model had opened the skill itself.
+author: Wendong Li
+license: MIT
+homepage: https://github.com/kosmo888/skill-hint
+requires_hermes: ">=0.22.0"
+tags: [skills, routing, discovery, local-first, bm25]
+hooks:
+  - pre_llm_call
+provides_hooks:
+  - pre_llm_call
+provides_tools: []
+requires_env: []
+optional_env:
+  - SKILL_HINT_DISABLE
+config_schema:
+  enabled:
+    type: bool
+    default: true
+    label: "Enabled"
+    description: "Master switch for skill hints in this profile."
+  max_hits:
+    type: int
+    default: 3
+    label: "Max skills per hint"
+    description: "How many candidate skills may be listed. Keep it small; a noisy hint is worse than none."
+  max_context_chars:
+    type: int
+    default: 600
+    label: "Context budget (chars)"
+    description: "Hard ceiling for the injected block."
+  min_score:
+    type: float
+    default: 3.0
+    label: "Minimum BM25 score"
+    description: "Absolute floor a candidate must reach. Raise it to be quieter, lower it to be more eager."
+  relative_floor:
+    type: float
+    default: 0.35
+    label: "Relative floor"
+    description: "Candidates scoring below this fraction of the best hit are dropped."
+  index_ttl_seconds:
+    type: int
+    default: 300
+    label: "Index TTL (seconds)"
+    description: "Rebuild the skill index after this long, so freshly installed skills appear without a restart. 0 = rebuild every turn."
+  aliases_file:
+    type: str
+    default: ""
+    label: "Aliases file"
+    description: "Path to an 'alias: skill-name' mapping. Empty = $HERMES_HOME/skill-hint-aliases.yaml if it exists."
+  extra_skill_roots:
+    type: str
+    default: ""
+    label: "Extra skill roots"
+    description: "Comma-separated extra directories to index, besides $HERMES_HOME/skills."
+  language:
+    type: str
+    default: "auto"
+    label: "Hint language"
+    description: "auto (follow the user's message) · en · zh"
+    choices: ["auto", "en", "zh"]
