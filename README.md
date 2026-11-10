@@ -25,9 +25,9 @@ before acting (auto-matched, may be wrong):
 
 ## Demo
 
-[![skill-hint, 11 seconds](media/banner.png)](demo/skill-hint-demo-261110V1.mp4)
+[![skill-hint, 13 seconds](media/banner.png)](demo/skill-hint-demo-261110V2.mp4)
 
-11 seconds, 1280×720. The clip is **generated, not screen-recorded**: `demo/render_demo.py`
+13 seconds, 1280×720. The clip is **generated, not screen-recorded**: `demo/render_demo.py`
 draws every frame with Pillow and pipes them to `ffmpeg`, so every word on screen is a string in
 that script — no real skill list, no host path, no terminal of anyone's machine. Re-render it
 yourself with `python demo/render_demo.py out.mp4` (needs Pillow, ffmpeg, and the DejaVu + Noto CJK
