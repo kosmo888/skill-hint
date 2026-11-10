@@ -23,6 +23,16 @@ before acting (auto-matched, may be wrong):
 - document-to-action-items: Turn a transcript into owner/date/action items.
 ```
 
+## Demo
+
+[![skill-hint, 11 seconds](media/banner.png)](demo/skill-hint-demo-261110V1.mp4)
+
+11 seconds, 1280×720. The clip is **generated, not screen-recorded**: `demo/render_demo.py`
+draws every frame with Pillow and pipes them to `ffmpeg`, so every word on screen is a string in
+that script — no real skill list, no host path, no terminal of anyone's machine. Re-render it
+yourself with `python demo/render_demo.py out.mp4` (needs Pillow, ffmpeg, and the DejaVu + Noto CJK
+fonts any Linux desktop already ships).
+
 ## Why this and not "let the model figure it out"
 
 | | system-prompt index alone | an LLM router | **skill-hint** |

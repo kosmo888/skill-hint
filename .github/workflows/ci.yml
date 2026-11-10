@@ -71,7 +71,9 @@ jobs:
               if hook not in src:
                   problems.append(f"hook {hook} declared but not referenced in __init__.py")
 
-          # standard library only: no third-party import may appear
+          # standard library only, for the plugin runtime (root modules + scripts/).
+          # demo/render_demo.py is a build-time asset generator, not shipped runtime
+          # code: it needs Pillow on purpose, so it sits outside this scan.
           stdlib_ok = set(sys.stdlib_module_names)
           for path in list(root.glob("*.py")) + list(root.glob("scripts/*.py")):
               for match in re.finditer(r"^\s*(?:import|from)\s+([a-zA-Z_][\w.]*)", path.read_text(encoding="utf-8"), re.M):
